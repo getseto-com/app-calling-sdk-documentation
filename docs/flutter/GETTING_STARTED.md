@@ -1,0 +1,101 @@
+# Flutter Calling SDK Getting Started
+
+Use this guide to add the Flutter SDK to a Flutter application. The documented integration path in this repository is Android.
+
+## Before you start
+
+- Use Flutter 3.x and Dart 3.x.
+- Add Firebase to the Android app and place `google-services.json` at `android/app/google-services.json`.
+- Enable the Google Services plugin in the Android build.
+- Set Android `minSdk` to 24 or higher.
+- Make sure the manifest includes `INTERNET`, `RECORD_AUDIO`, `VIBRATE`, `POST_NOTIFICATIONS`, `BLUETOOTH`, and `BLUETOOTH_CONNECT`.
+- Make sure your backend can return a Calling JWT for the current user. See [AUTH_TOKEN.md](../AUTH_TOKEN.md) for how your backend should obtain it.
+
+## 1. Add dependencies
+
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_calling_sdk:
+  git:
+    url: https://github.com/getseto-com/app-calling-sdk.git
+    path: flutter
+    ref: v1.0.0
+  firebase_core: ^3.0.0
+```
+
+## 2. Register and initialize the SDK
+
+If you use the built-in UI, connect a navigator key to your `MaterialApp`. `environment` is the only required config field.
+
+```dart
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_calling_sdk/flutter_calling_sdk.dart';
+
+final appNavigatorKey = GlobalKey<NavigatorState>();
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  SipCalling.registerBackgroundHandlers();
+  await Firebase.initializeApp();
+  await SipCalling.initialize(
+    const SipCallingConfig(environment: SipEnvironment.uat),
+    navigatorKey: appNavigatorKey,
+  );
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      navigatorKey: appNavigatorKey,
+      home: const Placeholder(),
+    );
+  }
+}
+```
+
+If you do not already own a navigator key, you can use `SipCalling.navigatorKey`.
+
+## 3. Activate the current user
+
+Pass the Calling JWT returned by your backend. See [AUTH_TOKEN.md](../AUTH_TOKEN.md) for the backend token flow.
+
+```dart
+await SipCalling.activateUser(jwt);
+// or
+await SipCalling.activateAdmin(jwt);
+```
+
+Use `activateUser()` only with user tokens and `activateAdmin()` only with admin tokens.
+
+## 4. Start a call
+
+The current public outbound flow is for admin sessions. `toUserId` is required.
+
+```dart
+await SipCalling.instance.startCall(toUserId: 'user-1');
+```
+
+You can also pass an optional `message`.
+
+## 5. Go offline on logout
+
+```dart
+await SipCalling.instance.deactivate();
+```
+
+Call `dispose()` only when you want to tear down the SDK instance completely.
+
+## Notes
+
+- `initialize()` can restore the last valid session if you did not call `deactivate()` before.
+- Built-in UI is the default. Use `UiMode.headless` only when you plan to render your own UI.
+- The current repository documents Android integration. iOS setup is not documented here.
+
+For headless mode, streams, theming, and the full public API surface, see [ADVANCED_INTEGRATION.md](./ADVANCED_INTEGRATION.md).
