@@ -8,7 +8,9 @@ Use this guide to add the Flutter SDK to a Flutter application. The documented i
 - Add Firebase to the Android app and place `google-services.json` at `android/app/google-services.json`.
 - Enable the Google Services plugin in the Android build.
 - Set Android `minSdk` to 24 or higher.
-- Make sure the manifest includes `INTERNET`, `RECORD_AUDIO`, `VIBRATE`, `POST_NOTIFICATIONS`, `BLUETOOTH`, and `BLUETOOTH_CONNECT`.
+- Make sure the manifest includes `INTERNET`, `RECORD_AUDIO`, `VIBRATE`, `BLUETOOTH`, and `BLUETOOTH_CONNECT`.
+- The SDK manifest declares `POST_NOTIFICATIONS`, `USE_FULL_SCREEN_INTENT`, and `WAKE_LOCK` for incoming-call presentation on Android.
+- For reliable lock-screen wake with the built-in incoming-call UI, add `android:showWhenLocked="true"` and `android:turnScreenOn="true"` to the app activity that hosts Flutter, typically `MainActivity`.
 - Make sure your backend can return a Calling JWT for the current user. See [AUTH_TOKEN.md](../AUTH_TOKEN.md) for how your backend should obtain it.
 
 ## 1. Add dependencies
@@ -74,6 +76,8 @@ await SipCalling.activateAdmin(jwt);
 
 Use `activateUser()` only with user tokens and `activateAdmin()` only with admin tokens.
 
+If Android notification permission has not already been granted, the SDK requests it immediately during activation. If the user later disables notifications in system settings, the SDK re-checks that state on resume and before presenting incoming-call alerting.
+
 ## 4. Start a call
 
 The current public outbound flow is for admin sessions. `toUserId` is required.
@@ -97,5 +101,6 @@ Call `dispose()` only when you want to tear down the SDK instance completely.
 - `initialize()` can restore the last valid session if you did not call `deactivate()` before.
 - Built-in UI is the default. Use `UiMode.headless` only when you plan to render your own UI.
 - The current repository documents Android integration. iOS setup is not documented here.
+- Do not add a separate Android notification-permission workflow for the calling SDK. The SDK owns that permission request and suppresses background incoming-call alerting if notifications are unavailable.
 
 For headless mode, streams, theming, and the full public API surface, see [ADVANCED_INTEGRATION.md](./ADVANCED_INTEGRATION.md).

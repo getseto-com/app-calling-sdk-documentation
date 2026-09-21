@@ -19,6 +19,7 @@ Your Flutter app should provide:
 - Android `minSdk` 24 or higher
 - A `NavigatorKey` for built-in UI, or `SipCalling.navigatorKey`
 - A Calling JWT from your backend. See [AUTH_TOKEN.md](../AUTH_TOKEN.md) for how your backend should obtain it.
+- No separate Android notification-permission workflow for calling; the SDK requests notification permission during activation when needed.
 
 ## Initialization
 
@@ -91,6 +92,7 @@ Integration rules:
 - Call `initialize()` before any other SDK API.
 - The JWT role must match the activation method you call.
 - `initialize()` can restore a previously saved valid session.
+- Android notification permission is re-checked from current OS state during activation and on resume before incoming-call alerting is presented.
 - Call `deactivate()` on logout to stop presence and prevent automatic restore.
 - Call `dispose()` when your app is removing the SDK completely.
 - The SDK will not replace the active session while a call is in progress.
@@ -169,4 +171,5 @@ The SDK exports these error classes:
 
 - Fetch Calling JWTs through your backend, not from the app directly. See [AUTH_TOKEN.md](../AUTH_TOKEN.md).
 - Keep logout wired to `deactivate()`.
+- If notifications are denied or later revoked, the SDK suppresses background incoming-call ringtone/vibration instead of starting an alert with no actionable notification.
 - If you build your own UI, switch to `UiMode.headless` and drive your screens from the public streams.
