@@ -103,11 +103,11 @@ await AppCalling.activateAdmin(jwt);
 ```
 
 ```dart
-await SipCalling.activateUser(jwt);
+await AppCalling.activateUser(jwt);
 ```
 
 ```dart
-await SipCalling.activateAdmin(jwt);
+await AppCalling.activateAdmin(jwt);
 ```
 
 ## Security notes

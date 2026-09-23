@@ -14,17 +14,17 @@ Your Flutter app should provide:
 
 - `flutter_calling_sdk` and `firebase_core`
 - Firebase initialization during startup
-- `SipCalling.registerBackgroundHandlers()` before `runApp()`
+- `AppCalling.registerBackgroundHandlers()` before `runApp()`
 - Android Firebase configuration and Google Services plugin
 - Android `minSdk` 24 or higher
-- A `NavigatorKey` for built-in UI, or `SipCalling.navigatorKey`
+- A `NavigatorKey` for built-in UI, or `AppCalling.navigatorKey`
 - A Calling JWT from your backend. See [AUTH_TOKEN.md](../AUTH_TOKEN.md) for how your backend should obtain it.
 - No separate Android notification-permission workflow for calling; the SDK requests notification permission during activation when needed.
 
 ## Initialization
 
 ```dart
-SipCalling.initialize(
+AppCalling.initialize(
   config,
   fcmToken: fcmToken,
   navigatorKey: appNavigatorKey,
@@ -35,13 +35,17 @@ SipCalling.initialize(
 
 | Argument | Type | Required | Notes |
 | --- | --- | --- | --- |
-| `config.environment` | `SipEnvironment` | Yes | Use `SipEnvironment.uat` before go-live |
+| `config.environment` | `AppEnvironment` | Yes | Use `AppEnvironment.uat` before go-live |
+| `config.userName` | `String?` | No | Display name associated with the current SDK session |
+| `config.designation` | `String?` | No | Role/subtitle shown in the built-in call dialog |
+| `config.photoUrl` | `String?` | No | Avatar image URL shown in the built-in call dialog |
+| `config.companyName` | `String?` | No | Company label used by the built-in UI when shown |
 | `fcmToken` | `String?` | No | Pass it if your app already owns the token |
-| `navigatorKey` | `GlobalKey<NavigatorState>?` | No | Recommended for built-in UI; falls back to `SipCalling.navigatorKey` |
+| `navigatorKey` | `GlobalKey<NavigatorState>?` | No | Recommended for built-in UI; falls back to `AppCalling.navigatorKey` |
 | `uiMode` | `UiMode` | No | Defaults to `UiMode.builtIn` |
-| `theme` | `SipCallingTheme?` | No | Applies to the built-in UI |
+| `theme` | `AppCallingTheme?` | No | Applies to the built-in UI |
 
-`SipCallingTheme` fields:
+`AppCallingTheme` fields:
 
 - `primaryColor`
 - `dangerColor`
@@ -53,17 +57,27 @@ SipCalling.initialize(
 ### Built-in UI example
 
 ```dart
-await SipCalling.initialize(
-  const SipCallingConfig(environment: SipEnvironment.uat),
+await AppCalling.initialize(
+  const AppCallingConfig(
+    environment: AppEnvironment.uat,
+    userName: 'Aarav Mehta',
+    designation: 'Relationship Manager',
+    photoUrl: 'https://example.com/users/aarav-mehta.jpg',
+    companyName: 'Ainxt Technovation Pvt. Ltd.',
+  ),
   navigatorKey: appNavigatorKey,
 );
 ```
 
+Use the camelCase SDK config keys shown above. They map to the built-in dialog display fields `UserName`, `Designation`, `PhotoUrl`, and `CompanyName`.
+
+All four display fields are optional. Pass only the ones you have, and leave the rest out of `AppCallingConfig`.
+
 ### Headless example
 
 ```dart
-await SipCalling.initialize(
-  const SipCallingConfig(environment: SipEnvironment.uat),
+await AppCalling.initialize(
+  const AppCallingConfig(environment: AppEnvironment.uat),
   uiMode: UiMode.headless,
 );
 ```
@@ -72,13 +86,13 @@ await SipCalling.initialize(
 
 Public activation methods:
 
-- `SipCalling.activateUser(jwt, { fcmToken })`
-- `SipCalling.activateAdmin(jwt, { fcmToken })`
+- `AppCalling.activateUser(jwt, { fcmToken })`
+- `AppCalling.activateAdmin(jwt, { fcmToken })`
 
 Public instance access:
 
-- `SipCalling.instance`
-- `SipCalling.maybeInstance`
+- `AppCalling.instance`
+- `AppCalling.maybeInstance`
 
 Lifecycle states:
 
@@ -111,7 +125,7 @@ Integration rules:
 
 ## Streams
 
-These streams are available from `SipCalling.instance`:
+These streams are available from `AppCalling.instance`:
 
 | Stream | Emits |
 | --- | --- |
@@ -141,15 +155,15 @@ These streams are available from `SipCalling.instance`:
 
 ## Optional public helpers
 
-- `SipCallingOverlay`: convenience widget that initializes the SDK and activates a user or admin from the widget tree.
-- `SipRole`: enum used by `SipCallingOverlay` with `SipRole.user` and `SipRole.admin`.
+- `AppCallingOverlay`: convenience widget that initializes the SDK and activates a user or admin from the widget tree.
+- `AppRole`: enum used by `AppCallingOverlay` with `AppRole.user` and `AppRole.admin`.
 - `RingtoneService`: Android-only helper for manual ringtone control when you build custom incoming-call handling.
 
 ## Useful public types
 
-- `SipCallingConfig`
+- `AppCallingConfig`
 - `UiMode`
-- `SipCallingTheme`
+- `AppCallingTheme`
 - `SdkLifecycleState`
 - `CallData`
 - `CallHistoryItem`

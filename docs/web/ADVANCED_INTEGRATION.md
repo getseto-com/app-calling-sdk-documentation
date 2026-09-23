@@ -23,6 +23,10 @@ AppCalling.initialize(config, theme?)
 | Argument | Type | Required | Notes |
 | --- | --- | --- | --- |
 | `config.environment` | `'Uat' | 'Live'` | Yes | Use `'Uat'` before go-live |
+| `config.userName` | `string` | No | Display name associated with the current SDK session |
+| `config.designation` | `string` | No | Role/subtitle shown in the built-in call dialog |
+| `config.photoUrl` | `string` | No | Avatar image URL shown in the built-in call dialog |
+| `config.companyName` | `string` | No | Company label used by the built-in UI when shown |
 | `theme` | `Partial<AppCallingTheme>` | No | Overrides the built-in overlay theme |
 
 `AppCallingTheme` fields:
@@ -39,13 +43,23 @@ Example:
 
 ```ts
 await AppCalling.initialize(
-  { environment: 'Uat' },
+  {
+    environment: 'Uat',
+    userName: 'Aarav Mehta',
+    designation: 'Relationship Manager',
+    photoUrl: 'https://example.com/users/aarav-mehta.jpg',
+    companyName: 'Ainxt Technovation Pvt. Ltd.',
+  },
   {
     primaryColor: '#0057ff',
     borderRadius: '16px',
   },
 );
 ```
+
+Use the camelCase SDK config keys shown above. They map to the built-in dialog display fields `UserName`, `Designation`, `PhotoUrl`, and `CompanyName`.
+
+All four display fields are optional. Pass only the ones you have, and leave the rest out of `config`.
 
 ## Activation and lifecycle
 

@@ -15,13 +15,42 @@ You can download the sdk from GIT Repo: https://github.com/getseto-com/app-calli
 
 `environment` is the only required initialization field.
 
+If you want the built-in call dialog to show richer identity details, you can also pass these optional fields during initialization:
+
+In the SDK API, pass them as `userName`, `designation`, `photoUrl`, and `companyName`. These map to the display fields `UserName`, `Designation`, `PhotoUrl`, and `CompanyName` used by the built-in call dialog.
+
+- `userName`: display name associated with the current SDK session.
+- `designation`: subtitle/role text shown in the call dialog.
+- `photoUrl`: avatar image URL shown in the call dialog.
+- `companyName`: company label used by the built-in UI.
+
+Pass only the fields you have. Omit any optional field that you do not want to provide.
+
 ```ts
 import { AppCalling } from 'app-calling-sdk';
 
-await AppCalling.initialize({ environment: 'Uat' });
+await AppCalling.initialize({
+  environment: 'Uat',
+  userName: 'Aarav Mehta',
+  designation: 'Relationship Manager',
+  photoUrl: 'https://example.com/users/aarav-mehta.jpg',
+  companyName: 'Ainxt Technovation Pvt. Ltd.',
+});
 ```
 
 The web SDK creates its built-in call UI during `initialize()`.
+
+These fields are optional. This is also valid when you only want to pass one or two values:
+
+```ts
+await AppCalling.initialize({
+  environment: 'Uat',
+  userName: 'Aarav Mehta',
+  photoUrl: 'https://example.com/users/aarav-mehta.jpg',
+});
+```
+
+Do not pass these values to `activateUser()`, `activateAdmin()`, or `startCall()`. Provide them in `initialize()` so the SDK can use them for call-dialog display.
 
 ## 3. Activate the current user
 
