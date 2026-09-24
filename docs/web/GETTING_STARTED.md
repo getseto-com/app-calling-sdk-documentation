@@ -4,12 +4,33 @@ Use this guide to add the web SDK to a browser application.
 
 ## Before you start
 
-- Include `app-calling.min.js` in your app.
+- Choose one integration path:
+  - install `app-calling-sdk` from npm and import `AppCalling` in your app
+  - or serve the browser bundle and use the global `AppCalling` class on a script page
 - Use a browser that supports WebRTC microphone access, `fetch`, `localStorage`, `crypto.randomUUID`, and `AbortSignal.timeout`.
 - Make sure your backend can return a Calling JWT for the current user. See [AUTH_TOKEN.md](../AUTH_TOKEN.md) for how your backend should obtain it.
 
-## 1. Download SDK
-You can download the sdk from GIT Repo: https://github.com/getseto-com/app-calling-sdk.git
+## 1. Install the SDK
+
+Recommended for Angular, React, Vue, Vite, Webpack, and other bundler-based apps:
+
+```sh
+npm install app-calling-sdk
+```
+
+```ts
+import { AppCalling } from 'app-calling-sdk';
+```
+
+If your app does not use a bundler, serve `node_modules/app-calling-sdk/dist/browser/app-calling.min.js`
+as a static asset in your app and use the global `AppCalling` class:
+
+```html
+<script src="/vendor/app-calling.min.js"></script>
+<script>
+  await AppCalling.initialize({ environment: 'Uat' });
+</script>
+```
 
 ## 2. Initialize the SDK
 
@@ -67,6 +88,7 @@ Use `activateUser()` only with user tokens and `activateAdmin()` only with admin
 ## 4. Start a call
 
 The current public outbound flow is for admin sessions. `toUserId` is required.
+User-initiated support requests are not implemented in the current web SDK.
 
 ```ts
 await AppCalling.instance.startCall({ toUserId: 'user-1' });
@@ -74,7 +96,25 @@ await AppCalling.instance.startCall({ toUserId: 'user-1' });
 
 You can also pass an optional `message` and `metadata`.
 
-## 5. Go offline on logout
+## 5. Read presence and reachability
+
+After activation, you can query user availability or subscribe to reachability changes:
+
+```ts
+const users = await AppCalling.instance.getReachableUsers('user');
+
+const unsubscribe = AppCalling.subscribeReachableUsers((state) => {
+  console.log(state.status, state.userIds);
+});
+
+const online = AppCalling.isUserReachable('user-1', 'user');
+
+unsubscribe();
+```
+
+`subscribeReachableUsers()` is intended for admin presence views and requires an active admin session.
+
+## 6. Go offline on logout
 
 ```ts
 await AppCalling.instance.deactivate();
@@ -116,7 +156,7 @@ export class CallingService {
 ## Notes
 
 - `initialize()` can restore the last valid session if you did not call `deactivate()` before.
-- The built-in UI cannot be turned off in the current web SDK.
+- The built-in UI is created automatically during `initialize()`. There is no public headless mode in the current web SDK.
 - `acceptCall()` and `rejectCall()` are public methods, but the current web SDK does not expose a complete public inbound browser delivery flow.
 
 For theme options and the full public API surface, see [ADVANCED_INTEGRATION.md](./ADVANCED_INTEGRATION.md).
