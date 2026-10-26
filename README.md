@@ -31,4 +31,4 @@ This folder contains the public integration guides for the two SDKs in this repo
 - The web SDK always creates its built-in UI during `initialize()`. There is no public headless mode.
 - The Flutter SDK supports built-in UI and headless mode, and it exposes streams for custom UI.
 - The Flutter SDK includes Android incoming-call integration with Firebase Cloud Messaging.
-- The current public web integration path is centered on activation, presence, reachability helpers, and admin outbound calling.
+- The web SDK supports admin outbound calls and incoming calls in an active foreground tab, alongside activation, presence, and reachability helpers.

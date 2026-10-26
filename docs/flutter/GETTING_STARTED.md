@@ -19,17 +19,30 @@ Use this guide to add the Flutter SDK to a Flutter application. The documented i
 dependencies:
   flutter:
     sdk: flutter
+
   flutter_calling_sdk:
-  git:
-    url: https://github.com/getseto-com/app-calling-sdk.git
-    path: flutter
-    ref: v1.0.0
+    git:
+      url: https://github.com/getseto-com/app-calling-sdk.git
+      path: flutter
+      ref: v1.6.0
+
   firebase_core: ^3.0.0
 ```
 
 ## 2. Register and initialize the SDK
 
 If you use the built-in UI, connect a navigator key to your `MaterialApp`. `environment` is the only required config field.
+
+`apiBaseUrl` is optional. Use the API URL provided for your integration; without it, the SDK uses the configured environment endpoint. Provide an absolute HTTP(S) URL (HTTPS recommended) that does not end with `/api`. Your application backend must use the corresponding API URL when obtaining Calling JWTs.
+
+```dart
+await AppCalling.initialize(
+  const AppCallingConfig(
+    environment: AppEnvironment.uat,
+    apiBaseUrl: 'https://api.example.com',
+  ),
+);
+```
 
 If you want the built-in call dialog to show richer identity details, you can also pass these optional fields in `AppCallingConfig`:
 
@@ -112,13 +125,19 @@ If Android notification permission has not already been granted, the SDK request
 
 ## 4. Start a call
 
-The current public outbound flow is for admin sessions. `toUserId` is required.
+Admin sessions call a specific user by passing `toUserId`:
 
 ```dart
-await AppCalling.instance.startCall(toUserId: 'user-1');
+await AppCalling.instance.startCall(toUserId: 'user-123');
 ```
 
-You can also pass an optional `message`.
+User sessions can call an available admin without `toUserId`:
+
+```dart
+await AppCalling.instance.startCall(message: 'Need assistance');
+```
+
+`message` is optional for both flows. User callers cannot select a recipient.
 
 ## 5. Go offline on logout
 

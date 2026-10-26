@@ -6,7 +6,7 @@ This flow is shared by both the Flutter SDK and the Web SDK.
 
 ## Why this is a backend flow
 
-The Calling JWT is issued by the App Calling API `POST /auth/token` endpoint.
+The Calling JWT is issued by the App Calling API `POST /api/auth/token` endpoint.
 That endpoint requires your tenant `ApiKey` and `ApiSecret`.
 
 Your backend must call this endpoint on behalf of your app because `ApiSecret` is sensitive.
@@ -17,7 +17,7 @@ Never expose `ApiSecret` in a frontend application, browser bundle, mobile app, 
 
 1. Your frontend authenticates with your own backend.
 2. Your backend decides which App Calling role the current user should use: `user` or `admin`.
-3. Your backend calls the App Calling API `POST /auth/token` endpoint with `ApiKey`, `ApiSecret`, `UserId`, and `Role`.
+3. Your backend calls the App Calling API `POST /api/auth/token` endpoint with `ApiKey`, `ApiSecret`, `UserId`, and `Role`.
 4. The App Calling API returns a Calling JWT.
 5. Your backend returns only the Calling JWT, and optionally its expiry, to the frontend.
 6. Your frontend passes that JWT to the SDK using `activateUser(jwt)` or `activateAdmin(jwt)`.
@@ -25,11 +25,11 @@ Never expose `ApiSecret` in a frontend application, browser bundle, mobile app, 
 ## Endpoint
 
 - Method: `POST`
-- Path: `/auth/token`
+- Path: `/api/auth/token`
 - Caller: your backend only
 - Content-Type: `application/json`
 
-Use the App Calling API base URL for the same environment that your SDK is using.
+Use the API base URL corresponding to the one your SDK is using. The base URL must not end with `/api`.
 
 ## Request body
 
@@ -61,7 +61,7 @@ The token role must match the SDK activation method:
 This example is intentionally language-independent so you can implement the same backend call in any stack.
 
 ```bash
-curl --request POST "${APP_CALLING_API_BASE_URL}/auth/token" \
+curl --request POST "${APP_CALLING_API_BASE_URL}/api/auth/token" \
   --header "Content-Type: application/json" \
   --data "{\"ApiKey\":\"your-tenant-api-key\",\"ApiSecret\":\"your-tenant-api-secret\",\"UserId\":\"user-123\",\"Role\":\"user\"}"
 ```
@@ -69,7 +69,7 @@ curl --request POST "${APP_CALLING_API_BASE_URL}/auth/token" \
 Example admin token request:
 
 ```bash
-curl --request POST "${APP_CALLING_API_BASE_URL}/auth/token" \
+curl --request POST "${APP_CALLING_API_BASE_URL}/api/auth/token" \
   --header "Content-Type: application/json" \
   --data "{\"ApiKey\":\"your-tenant-api-key\",\"ApiSecret\":\"your-tenant-api-secret\",\"UserId\":\"admin-1\",\"Role\":\"admin\"}"
 ```

@@ -28,13 +28,22 @@ as a static asset in your app and use the global `AppCalling` class:
 ```html
 <script src="/vendor/app-calling.min.js"></script>
 <script>
-  await AppCalling.initialize({ environment: 'Uat' });
+  AppCalling.initialize({ environment: 'Uat' }).catch(console.error);
 </script>
 ```
 
 ## 2. Initialize the SDK
 
 `environment` is the only required initialization field.
+
+`apiBaseUrl` is optional. Use the API URL provided for your integration; without it, the SDK uses the configured environment endpoint. Provide an absolute HTTP(S) URL (HTTPS recommended) that does not end with `/api`. Your application backend must use the corresponding API URL when obtaining Calling JWTs.
+
+```typescript
+await AppCalling.initialize({
+  environment: 'Uat',
+  apiBaseUrl: 'https://api.example.com',
+});
+```
 
 If you want the built-in call dialog to show richer identity details, you can also pass these optional fields during initialization:
 
@@ -157,6 +166,7 @@ export class CallingService {
 
 - `initialize()` can restore the last valid session if you did not call `deactivate()` before.
 - The built-in UI is created automatically during `initialize()`. There is no public headless mode in the current web SDK.
-- `acceptCall()` and `rejectCall()` are public methods, but the current web SDK does not expose a complete public inbound browser delivery flow.
+- Active admin sessions can receive calls while the browser tab is open in the foreground. The SDK checks for incoming calls and presents its built-in UI; it does not provide background delivery.
+- The SDK attempts to enable the ringtone after admin activation and again after the first user interaction. Browser audio policy can block playback until a click or key press. You can call `AppCalling.instance.enableRingtone()` directly from a user gesture; it returns whether audio was enabled.
 
 For theme options and the full public API surface, see [ADVANCED_INTEGRATION.md](./ADVANCED_INTEGRATION.md).

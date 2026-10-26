@@ -6,7 +6,7 @@ This guide covers the full public Flutter SDK surface that integrators can use.
 
 - The documented integration path in this repository is Android.
 - Built-in UI is the default, and `UiMode.headless` is available for custom UI.
-- The current public outbound flow is for admin sessions.
+- Admin sessions can call a specific user, and user sessions can call an available admin.
 
 ## Required app setup
 
@@ -36,14 +36,27 @@ AppCalling.initialize(
 | Argument | Type | Required | Notes |
 | --- | --- | --- | --- |
 | `config.environment` | `AppEnvironment` | Yes | Use `AppEnvironment.uat` before go-live |
+| `config.apiBaseUrl` | `String?` | No | API URL provided for your integration; otherwise uses the configured environment endpoint |
 | `config.userName` | `String?` | No | Display name associated with the current SDK session |
 | `config.designation` | `String?` | No | Role/subtitle shown in the built-in call dialog |
 | `config.photoUrl` | `String?` | No | Avatar image URL shown in the built-in call dialog |
 | `config.companyName` | `String?` | No | Company label used by the built-in UI when shown |
+| `config.noiseCancellationEnabled` | `bool` | No | Requests microphone noise suppression; defaults to `true` |
 | `fcmToken` | `String?` | No | Pass it if your app already owns the token |
 | `navigatorKey` | `GlobalKey<NavigatorState>?` | No | Recommended for built-in UI; falls back to `AppCalling.navigatorKey` |
 | `uiMode` | `UiMode` | No | Defaults to `UiMode.builtIn` |
 | `theme` | `AppCallingTheme?` | No | Applies to the built-in UI |
+
+If you set `apiBaseUrl`, use an absolute HTTP(S) URL (HTTPS recommended) that does not end with `/api`. Your application backend must use the corresponding API URL when obtaining Calling JWTs.
+
+```dart
+await AppCalling.initialize(
+  const AppCallingConfig(
+    environment: AppEnvironment.uat,
+    apiBaseUrl: 'https://api.example.com',
+  ),
+);
+```
 
 `AppCallingTheme` fields:
 
@@ -115,13 +128,21 @@ Integration rules:
 
 | API | What to use it for | Notes |
 | --- | --- | --- |
-| `startCall({ toUserId, message })` | Start an outbound call | Current public flow is for admin sessions; `toUserId` is required |
+| `startCall({ toUserId, message })` | Start an outbound call | Admins must pass `toUserId`; users omit it to call an available admin. `message` is optional. Returns `Future<CallData>` |
 | `acceptCall()` | Accept a ringing call | Public inbound flow is available on the Flutter side |
 | `rejectCall()` | Reject a ringing call | Use when the current call is ringing |
 | `endCall()` | End the current call | Requires an active call |
 | `toggleMute()` | Toggle microphone mute | Returns the current mute state |
 | `isMuted()` | Read local mute state | Local state only |
 | `toggleSpeaker(bool speakerOn)` | Switch speaker output | Flutter-specific |
+| `setNoiseCancellationEnabled(bool enabled)` | Set microphone noise suppression for the active and future calls | Returns `Future<void>` |
+
+```dart
+await AppCalling.instance.startCall(toUserId: 'user-123'); // admin session
+await AppCalling.instance.startCall(message: 'Need assistance'); // user session
+```
+
+Set `noiseCancellationEnabled: false` in `AppCallingConfig` to disable noise suppression at initialization. It defaults to `true`; call `await AppCalling.instance.setNoiseCancellationEnabled(false)` to change it later.
 
 ## Streams
 
