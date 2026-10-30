@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.6.3 - 2026-10-30
+- Documentation synchronized with App Calling SDK v1.6.3
+- Flutter documentation
+- Web documentation
+
 ## v1.6.2 - 2026-10-29
 - Documentation synchronized with App Calling SDK v1.6.2
 - Flutter documentation

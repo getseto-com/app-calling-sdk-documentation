@@ -24,7 +24,7 @@ dependencies:
     git:
       url: https://github.com/getseto-com/app-calling-sdk.git
       path: flutter
-      ref: v1.6.2
+      ref: v1.6.3
 
   firebase_core: ^3.0.0
 ```
